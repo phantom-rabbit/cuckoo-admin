@@ -7,9 +7,7 @@ import (
 	"github.com/GoAdminGroup/go-admin/template/types/form"
 )
 
-func GetAddressesTable(ctx *context.Context) table.Table {
-	//addresses := table.NewDefaultTable(table.DefaultConfigWithDriver("postgresql"))
-
+func GetAppInfoTable(ctx *context.Context) table.Table {
 	addresses := table.NewDefaultTable(table.DefaultConfigWithDriverAndConnection("postgresql", "cuckoo"))
 
 	info := addresses.GetInfo()

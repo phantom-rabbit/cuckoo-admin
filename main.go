@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"cuckoo-admin/api"
 	"cuckoo-admin/database"
 	"io/ioutil"
@@ -22,6 +23,11 @@ import (
 )
 
 func main() {
+	err := database.SetCuckooClient(context.Background(), "127.0.0.1:9033")
+	if err != nil {
+		panic(err)
+	}
+
 	startServer()
 }
 
@@ -41,14 +47,13 @@ func startServer() {
 		panic(err)
 	}
 
-	database.Conn = eng.PostgresqlConnection()
-
+	database.SetConn(eng.PostgresqlConnection())
 	r.Static("/uploads", "./uploads")
 	r.POST("/api/callback", api.CallBack)
 	eng.HTML("GET", "/admin", pages.GetDashBoard)
-	eng.HTMLFile("GET", "/admin/hello", "./html/hello.tmpl", map[string]interface{}{
-		"msg": "Hello world",
-	})
+	//eng.HTMLFile("GET", "/admin/hello", "./html/hello.tmpl", map[string]interface{}{
+	//	"msg": "Hello world",
+	//})
 
 	_ = r.Run(":9033")
 

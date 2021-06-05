@@ -5,7 +5,17 @@
 			"port": "5432",
 			"user": "postgres",
 			"pwd": "postgres",
-			"name": "cuckoo-admin",
+			"name": "cuckoo_admin",
+			"max_idle_con": 5,
+			"max_open_con": 10,
+			"driver": "postgresql"
+		},
+		"cuckoo": {
+			"host": "127.0.0.1",
+			"port": "5432",
+			"user": "postgres",
+			"pwd": "postgres",
+			"name": "cuckoo",
 			"max_idle_con": 5,
 			"max_open_con": 10,
 			"driver": "postgresql"

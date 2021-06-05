@@ -7,9 +7,7 @@ import (
 	"fmt"
 	"github.com/GoAdminGroup/go-admin/context"
 	"github.com/GoAdminGroup/go-admin/modules/db"
-	"github.com/GoAdminGroup/go-admin/modules/db/dialect"
 	"github.com/GoAdminGroup/go-admin/plugins/admin/modules/table"
-	"github.com/GoAdminGroup/go-admin/template/icon"
 	"github.com/GoAdminGroup/go-admin/template/types"
 	"github.com/GoAdminGroup/go-admin/template/types/action"
 	"github.com/GoAdminGroup/go-admin/template/types/form"
@@ -18,8 +16,9 @@ import (
 )
 
 func GetTransfersTable(ctx *context.Context) table.Table {
-	transfers := table.NewDefaultTable(table.DefaultConfigWithDriver("postgresql"))
+	transfers := table.NewDefaultTable(table.DefaultConfigWithDriverAndConnection("postgresql", "cuckoo"))
 	info := transfers.GetInfo()
+
 	transfers.GetForm()
 	info.HideNewButton()
 	info.HideDeleteButton()
@@ -32,11 +31,12 @@ func GetTransfersTable(ctx *context.Context) table.Table {
 	info.AddField("hash", "tx_id", db.Text).FieldDisplay(func(model types.FieldModel) interface{} {
 		return `<a target="view_window" href="https://trx.tokenview.com/cn/tx/`+ model.Value + `" >` + model.Value + `</a>`
 	}).FieldFilterable()
-	info.AddField("区块高度", "block_height", db.Int8)
+	//info.AddField("区块高度", "block_height", db.Int8)
 	info.AddField("时间", "timestamp", db.Int8).FieldDisplay(func(model types.FieldModel) interface{} {
 		unix, _ := strconv.ParseInt(model.Value, 10, 64)
 		return time.Unix(unix / 1000, 0).Format("2006-01-02 15:04:05")
 	})
+	info.AddField("AppId", "app_id", db.Text).FieldFilterable()
 	info.AddField("转出", "from", db.Text)
 	info.AddField("转入", "to", db.Text).FieldFilterable()
 	info.AddField("类型", "tx_type", db.Text)
@@ -53,48 +53,53 @@ func GetTransfersTable(ctx *context.Context) table.Table {
 	})
 	info.AddField("回调状态", "call_back", db.Bool)
 	info.AddField("回调次数", "call_back_num", db.Int)
+	info.AddField("归集状态", "collect", db.Bool)
 
-	info.AddColumnButtons("手动回调", types.GetColumnButton("回调", icon.MailForward,
-		action.PopUp("/info/callback", "回调结果", func(ctx *context.Context) (success bool, msg string, data interface{}) {
-			value := ctx.FormValue("id")
 
-			first, err := db.WithDriver(database.Conn).Table("transfers").Where("id", "=", value).First()
-			if err != nil {
-				return true, "err", err.Error()
-			}
+	info.AddActionButton("回调", action.PopUp("callback", "回调结果", func(ctx *context.Context) (success bool, msg string, data interface{}) {
+		value := ctx.FormValue("id")
+		transfer, err := module.GetTransferById(database.Conn, value)
+		if err != nil {
+			return true, "err", err.Error()
+		}
 
-			if first["call_back_url"].(string) == "" {
-				return true, "err", "回调地址为空，请设置回调地址"
-			}
+		if transfer.CallBackUrl == "" {
+			return true, "err", "回调地址为空，请设置回调地址"
+		}
 
-			tx := module.Transfer{
-				TxId:         first["tx_id"].(string),
-				BlockHeight:  first["block_height"].(int64),
-				Timestamp:    first["timestamp"].(int64),
-				From:         first["from"].(string),
-				To:           first["to"].(string),
-				TxType:       first["tx_type"].(string),
-				Value:        first["value"].(string),
-				Status:       first["status"].(int64),
-				CallBack:     first["call_back"].(bool),
-				CallBackNum:  first["call_back_num"].(int64),
-				CallBackUrl:  first["call_back_url"].(string),
-			}
-			err = service.CallBack(first["call_back_url"].(string), tx)
-			if err != nil {
-				return true, "err", err.Error()
-			}
-			_, err = db.WithDriver(database.Conn).Table("transfers").Where("id", "=", value).
-				Update(dialect.H{
-					"call_back":      true,
-					"call_back_time": time.Now().Unix(),
-				})
-			if err != nil {
-				fmt.Println("UPDATE transfers CallBack Err:", err)
-			}
+		err = service.CallBack(transfer.CallBackUrl, transfer)
+		if err != nil {
+			return true, "err", err.Error()
+		}
 
-			return true, "ok", "SUCCESS"
-		})))
+		transfer.CallBack = true
+		transfer.CallBackTime = time.Now().Unix()
+		transfer.CallBackNum += 1
+
+		err = transfer.UpdateCallBack(database.Conn)
+		if err != nil {
+			fmt.Println("UPDATE transfers CallBack Err:", err)
+		}
+
+		return true, "ok", "SUCCESS"
+	}))
+
+	info.AddActionButton("归集", action.PopUp("collect", "归集结果", func(ctx *context.Context) (success bool, msg string, data interface{}) {
+		tx, err := module.GetTransferById(database.Conn, ctx.FormValue("id"))
+		if err != nil {
+			return true, "err", err.Error()
+		}
+		if tx.Collect {
+			return true, "err", "该笔交易已经归集过了,请勿重复归集"
+		}
+
+		collect, err := database.GetCuckooClient().Collect(ctx.Request.Context(), ctx.FormValue("id"))
+		if err != nil {
+			return true, "err", "归集失败:" + err.Error()
+		}
+
+		return true, "ok", "归集成功,交易Hash:" + collect
+	}))
 
 	info.SetTable("transfers").SetTitle("充值记录").SetDescription("充值记录列表")
 
@@ -116,7 +121,7 @@ func GetTransfersTable(ctx *context.Context) table.Table {
 		SetDescription("回调详情")
 
 	formList := transfers.GetForm()
-	formList.AddField("回调地址", "call_back_url", db.Text, form.RichText)
+	formList.AddField("回调地址", "call_back_url", db.Text, form.Text)
 
 	formList.HideContinueEditCheckBox()
 	formList.HideContinueNewCheckBox()

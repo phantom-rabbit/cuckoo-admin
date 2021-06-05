@@ -24,7 +24,5 @@ var Generators = map[string]table.Generator{
 	"collect":  pay.GetCollectsTable,
 	"address":  pay.GetAddressesTable,
 
-	"transfers": GetTransfersTable,
-
 	// generators end
 }
