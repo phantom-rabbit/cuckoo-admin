@@ -29,8 +29,8 @@
 		"path": "./uploads",
 		"prefix": "uploads"
 	},
-	"title": "CuclooPayAdmin",
-	"logo": "CuclooPay",
+	"title": "CuckooPayAdmin",
+	"logo": "CuckooPay",
 	"mini_logo": "CP",
 	"index": "/",
 	"login_url": "/login",

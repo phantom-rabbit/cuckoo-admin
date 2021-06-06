@@ -30,7 +30,7 @@ var (
 )
 
 func main() {
-	flag.StringVar(&apiAddr, "api", "172.0.0.1:9033", "cuckoo api ip:port")
+	flag.StringVar(&apiAddr, "api", "127.0.0.1:9000", "cuckoo api ip:port")
 	flag.StringVar(&config, "config", "./config.json", "config path")
 	flag.StringVar(&listen, "l", "127.0.0.1:9001", "listen port")
 	flag.Parse()

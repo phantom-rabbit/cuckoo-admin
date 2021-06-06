@@ -23,6 +23,6 @@ var Generators = map[string]table.Generator{
 	"transfer": pay.GetTransfersTable,
 	"collect":  pay.GetCollectsTable,
 	"address":  pay.GetAddressesTable,
-
+	"appIds":   pay.GetAppInfoTable,
 	// generators end
 }
