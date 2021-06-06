@@ -4,6 +4,7 @@ import (
 	"context"
 	"cuckoo-admin/api"
 	"cuckoo-admin/database"
+	"flag"
 	"io/ioutil"
 	"log"
 	"os"
@@ -22,8 +23,19 @@ import (
 	"cuckoo-admin/tables"
 )
 
+var (
+	apiAddr     string
+	config      string
+	listen      string
+)
+
 func main() {
-	err := database.SetCuckooClient(context.Background(), "127.0.0.1:9033")
+	flag.StringVar(&apiAddr, "api", "172.0.0.1:9033", "cuckoo api ip:port")
+	flag.StringVar(&config, "config", "./config.json", "config path")
+	flag.StringVar(&listen, "l", "127.0.0.1:9001", "listen port")
+	flag.Parse()
+
+	err := database.SetCuckooClient(context.Background(), apiAddr)
 	if err != nil {
 		panic(err)
 	}
@@ -41,7 +53,7 @@ func startServer() {
 
 	eng := engine.Default()
 
-	if err := eng.AddConfigFromJSON("./config.json").
+	if err := eng.AddConfigFromJSON(config).
 		AddGenerators(tables.Generators).
 		Use(r); err != nil {
 		panic(err)
@@ -55,7 +67,7 @@ func startServer() {
 	//	"msg": "Hello world",
 	//})
 
-	_ = r.Run(":9033")
+	_ = r.Run(listen)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)

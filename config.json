@@ -16,8 +16,8 @@
 			"user": "postgres",
 			"pwd": "postgres",
 			"name": "cuckoo",
-			"max_idle_con": 5,
-			"max_open_con": 10,
+			"max_idle_con": 10,
+			"max_open_con": 100,
 			"driver": "postgresql"
 		}
 	},
@@ -36,15 +36,15 @@
 	"login_url": "/login",
 	"debug": true,
 	"env": "local",
-	"info_log": "/home/phantom/public/work/cuckoo-admin/logs/info.log",
-	"error_log": "/home/phantom/public/work/cuckoo-admin/logs/error.log",
-	"access_log": "/home/phantom/public/work/cuckoo-admin/logs/access.log",
+	"info_log": "./logs/info.log",
+	"error_log": "./logs/error.log",
+	"access_log": "./logs/access.log",
 	"session_life_time": 7200,
 	"file_upload_engine": {
 		"name": "local"
 	},
-	"login_title": "CuclooPayAdmin",
-	"login_logo": "CuclooPayAdmin",
+	"login_title": "CuckooPayAdmin",
+	"login_logo": "CuckooPayAdmin",
 	"auth_user_table": "goadmin_users",
 	"bootstrap_file_path": "/home/phantom/public/work/cuckoo-admin/bootstrap.go",
 	"go_mod_file_path": "/home/phantom/public/work/cuckoo-admin/go.mod",
