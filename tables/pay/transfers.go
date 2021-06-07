@@ -29,7 +29,7 @@ func GetTransfersTable(ctx *context.Context) table.Table {
 
 	info.AddField("id", "id", db.Int8)
 	info.AddField("hash", "tx_id", db.Text).FieldDisplay(func(model types.FieldModel) interface{} {
-		return `<a target="view_window" href="https://trx.tokenview.com/cn/tx/`+ model.Value + `" >` + model.Value + `</a>`
+		return `<a target="_blank" href="https://trx.tokenview.com/cn/tx/`+ model.Value + `" >` + model.Value + `</a>`
 	}).FieldFilterable()
 	//info.AddField("区块高度", "block_height", db.Int8)
 	info.AddField("时间", "timestamp", db.Int8).FieldDisplay(func(model types.FieldModel) interface{} {
@@ -98,10 +98,15 @@ func GetTransfersTable(ctx *context.Context) table.Table {
 			return true, "err", "归集失败:" + err.Error()
 		}
 
+		err = tx.UpdateCollect(database.Conn)
+		if err != nil {
+			return true, err.Error(),nil
+		}
+
 		return true, "ok", "归集成功,交易Hash:" + collect
 	}))
 
-	info.SetTable("transfers").SetTitle("充值记录").SetDescription("充值记录列表")
+	info.SetTable("transfers").SetTitle("充值记录").SetDescription("充值记录列表").SetNoCompress()
 
 	detail := transfers.GetDetail()
 	detail.AddField("回调状态", "call_back", db.Bool)
@@ -111,8 +116,6 @@ func GetTransfersTable(ctx *context.Context) table.Table {
 		if model.Value == "0" {
 			return ""
 		}
-		fmt.Println(model.Value)
-
 		parseInt, _ := strconv.ParseInt(model.Value, 10, 64)
 		return time.Unix(parseInt, 0).Format("2006-01-02 15:04:05")
 	})

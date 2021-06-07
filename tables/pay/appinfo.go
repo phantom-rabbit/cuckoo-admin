@@ -6,6 +6,7 @@ import (
 	"github.com/GoAdminGroup/go-admin/modules/db"
 	"github.com/GoAdminGroup/go-admin/plugins/admin/modules/parameter"
 	"github.com/GoAdminGroup/go-admin/plugins/admin/modules/table"
+	"github.com/GoAdminGroup/go-admin/template/types"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -23,7 +24,9 @@ func GetAppInfoTable(ctx *context.Context) table.Table {
 	info.SetFilterFormInputWidth(6)
 
 	info.AddField("AppId", "app_id", db.Text)
-	info.AddField("出款地址", "drawing_addr", db.Text)
+	info.AddField("出款地址", "drawing_addr", db.Text).FieldDisplay(func(value types.FieldModel) interface{} {
+		return `<a target="_blank" href="https://trx.tokenview.com/cn/address/`+ value.Value + `" >` + value.Value + `</a>`
+	})
 	info.AddField("出款地址余额(USDT)", "drawing_usdt", db.Float8)
 	info.AddField("手续费地址", "trx_addr", db.Text)
 	info.AddField("手续费地址余额(TRX)", "trx_trx", db.Float8)

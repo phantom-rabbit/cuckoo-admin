@@ -28,7 +28,7 @@ func GetCollectsTable(ctx *context.Context) table.Table {
 	info.AddField("Id", "id", db.Int8)
 	info.AddField("充值ID", "in_hash", db.Text).FieldFilterable()
 	info.AddField("hash", "tx_id", db.Text).FieldDisplay(func(model types.FieldModel) interface{} {
-		return `<a target="view_window" href="https://trx.tokenview.com/cn/tx/`+ model.Value + `" >` + model.Value + `</a>`
+		return `<a target="_blank" href="https://trx.tokenview.com/cn/tx/`+ model.Value + `" >` + model.Value + `</a>`
 	})
 	info.AddField("time", "created_at", db.Timestamptz)
 	info.AddField("转出地址", "from", db.Text).FieldFilterable()
