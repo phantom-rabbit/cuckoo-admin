@@ -171,7 +171,7 @@ func TransferHeaderHtml(ctx *context.Context) htemplate.HTML {
 	}
 
 	var todayValue sql.NullFloat64
-	sqlQuery += "created_at > CURRENT_DATE"
+	sqlQuery += " and created_at >= CURRENT_DATE"
 	err = database.Conn.Raw(sqlQuery, params).Scan(&todayValue).Error
 	if err != nil {
 		fmt.Println("query err:", err)
