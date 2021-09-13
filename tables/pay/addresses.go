@@ -32,7 +32,7 @@ func GetAddressesTable(ctx *context.Context) table.Table {
 		FieldFilterable()
 	info.AddField("AppId", "app_id", db.Text).
 		FieldFilterable()
-	//info.AddField("私钥(加密)", "private_key", db.Text)
+	info.AddField("私钥(加密)", "private_key", db.Text)
 
 	info.AddActionButton("查询余额", action.PopUp("queryBalance", "余额", func(ctx *context.Context) (success bool, msg string, data interface{}) {
 		var adrr module.Address

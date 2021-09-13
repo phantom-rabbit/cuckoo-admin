@@ -179,7 +179,7 @@ func TransferHeaderHtml(ctx *context.Context) htemplate.HTML {
 
 	cardcard := card.New().
 		SetTitle("充值USDT").
-		SetSubTitle("$ " + fmt.Sprintf("%v", value.Float64)).
+		SetSubTitle("$ " + fmt.Sprintf("%.2f", value.Float64)).
 		SetFooter(template.HTML(`今日充值 <strong style="margin-left:8px;">`+ "$ " + fmt.Sprintf("%v", todayValue.Float64) + `</strong>`))
 	infobox := cardcard.GetContent()
 
