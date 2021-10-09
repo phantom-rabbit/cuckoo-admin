@@ -5,6 +5,7 @@ import (
 	"cuckoo-admin/api"
 	"cuckoo-admin/database"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -32,7 +33,7 @@ var (
 func main() {
 	flag.StringVar(&apiAddr, "service", "127.0.0.1:9000", "cuckoo service ip:port")
 	flag.StringVar(&config, "config", "./config.json", "config path")
-	flag.StringVar(&listen, "l", "127.0.0.1:9001", "listen port")
+	flag.StringVar(&listen, "l", "0.0.0.0:9001", "listen port")
 	flag.Parse()
 
 	err := database.SetCuckooClient(context.Background(), apiAddr)
@@ -67,7 +68,12 @@ func startServer() {
 	//	"msg": "Hello world",
 	//})
 
-	_ = r.Run(listen)
+	fmt.Println("listen:", listen)
+	err := r.Run(listen)
+	if err != nil {
+		fmt.Println("run admin err:", err)
+		return
+	}
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)

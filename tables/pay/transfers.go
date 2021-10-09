@@ -72,6 +72,7 @@ func GetTransfersTable(ctx *context.Context) table.Table {
 			return true, "err", "回调地址为空，请设置回调地址"
 		}
 
+		fmt.Println("cullback data:", transfer)
 		err = service.CallBack(transfer.CallBackUrl, transfer)
 		if err != nil {
 			return true, "err", err.Error()
